@@ -91,17 +91,27 @@ instance Show a => Show (Seq a) where
 					show2 (App a b) = show2 a ++ show2 b
 
 type Mat a = [[a]]
-{-
-magic :: Mat Int -> Bool
+
+-- ex 5b
+diagD :: Eq a => Mat a -> [a]
+diagD [] = []
+diagD mat | all (/=[]) mat = (head (head mat)):(diagD (tail (map tail mat)))
+          | otherwise = []
+
+diagE :: Eq a => Mat a -> [a]
+diagE [] = []
+diagE mat | all (/=[]) mat = (last (head mat)):(diagE (tail (map init mat)))
+          | otherwise = []
+
+colunas :: Eq a => Mat a -> [[a]]
+colunas [] = []
+colunas mat | all (/=[]) mat = (map head mat):(colunas (map tail mat))
+            | otherwise = []
+                    
+magic :: Eq a => Num a => Mat a -> Bool
 magic [] = True
-magic p = linhas p x && colunas l x && diagonais p x
+magic mat = all (==p) list
 	where
-		l = map head p
-		x = sum l
-		colunas t n = all (==n) (map sum (map head t)) && colunas (map init t) n
-		linhas a b = all (==b) (map sum a)
-		diagonais c d = let (e,f) = ldia c 0
-						 in sum e == d && sum f == d
-		ldia (h:t) x | length (h:t) == x = [(h!!x)]
-				     | otherwise = (h!!x):ldia t (x+1)
--}
+		p = sum(head mat)
+		linhas = mat
+		list = map sum (linhas ++ colunas mat ++ [diagD mat] ++ [diagE mat])
